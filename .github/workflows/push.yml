@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     env:
       targetZip: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
     steps:
@@ -26,7 +29,7 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          path: ${{ github.event.repository.name }}.exe
+          path: ${{ github.event.repository.name }}*
           filename: "${{ env.targetZip }}"
           
       - name: Release prebuilt

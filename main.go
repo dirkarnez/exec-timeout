@@ -19,13 +19,13 @@
 // 		fmt.Println("Command was killed")
 // 	}
 
-// 	if err != nil {
-// 		fmt.Println("If the command was killed, err will be \"signal: killed\"")
-// 		fmt.Println("If the command wasn't killed, it contains the actual error, e.g. invalid command")
-// 	} else {
-// 		fmt.Println("Done")
-// 	}
-// }
+//		if err != nil {
+//			fmt.Println("If the command was killed, err will be \"signal: killed\"")
+//			fmt.Println("If the command wasn't killed, it contains the actual error, e.g. invalid command")
+//		} else {
+//			fmt.Println("Done")
+//		}
+//	}
 package main
 
 import (
@@ -53,9 +53,9 @@ func main() {
 	command := os.Args[2]
 	args := os.Args[3:] // Remaining arguments are command arguments
 
-	fmt.Printf("Starting %s...\n", command)
+	fmt.Printf("Starting %s...%v\n", command, args)
 
-	// Start the command in a non-blocking manner
+	// // Start the command in a non-blocking manner
 	cmd := exec.Command(command, args...)
 	if err := cmd.Start(); err != nil {
 		fmt.Printf("Error starting %s: %v\n", command, err)

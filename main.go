@@ -30,31 +30,49 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"strconv"
 	"time"
 )
 
 func main() {
-	fmt.Println("Starting taskmgr...")
-
-	// Start taskmgr in a non-blocking manner
-	cmd := exec.Command("taskmgr")
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Error starting taskmgr:", err)
+	if len(os.Args) < 3 {
+		fmt.Println("Usage: go run main.go <duration_in_seconds> <command> [<args>...]")
 		return
 	}
 
-	// Countdown from 5 seconds
-	for i := 5; i > 0; i-- {
-		fmt.Printf("Killing taskmgr in %d seconds...\n", i)
+	// Parse duration from the first command-line argument
+	duration, err := strconv.Atoi(os.Args[1])
+	if err != nil || duration <= 0 {
+		fmt.Println("Please provide a valid positive integer for duration.")
+		return
+	}
+
+	// Get the command and its arguments
+	command := os.Args[2]
+	args := os.Args[3:] // Remaining arguments are command arguments
+
+	fmt.Printf("Starting %s...\n", command)
+
+	// Start the command in a non-blocking manner
+	cmd := exec.Command(command, args...)
+	if err := cmd.Start(); err != nil {
+		fmt.Printf("Error starting %s: %v\n", command, err)
+		return
+	}
+
+	// Countdown from the specified duration
+	for i := duration; i > 0; i-- {
+		fmt.Printf("Killing %s in %d seconds...\n", command, i)
 		time.Sleep(1 * time.Second)
 	}
 
-	// Kill taskmgr
+	// Kill the command
 	if err := cmd.Process.Kill(); err != nil {
-		fmt.Println("Error killing taskmgr:", err)
+		fmt.Printf("Error killing %s: %v\n", command, err)
 		return
 	}
 
-	fmt.Println("taskmgr was killed")
+	fmt.Printf("%s was killed\n", command)
 }

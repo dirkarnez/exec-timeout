@@ -44,7 +44,7 @@ func main() {
 
 	// Parse duration from the first command-line argument
 	duration, err := strconv.Atoi(os.Args[1])
-	if err != nil || duration <= 0 {
+	if err != nil || duration < 0 {
 		fmt.Println("Please provide a valid positive integer for duration.")
 		return
 	}
@@ -57,22 +57,32 @@ func main() {
 
 	// // Start the command in a non-blocking manner
 	cmd := exec.Command(command, args...)
-	if err := cmd.Start(); err != nil {
-		fmt.Printf("Error starting %s: %v\n", command, err)
-		return
-	}
 
-	// Countdown from the specified duration
-	for i := duration; i > 0; i-- {
-		fmt.Printf("Killing %s in %d seconds...\n", command, i)
-		time.Sleep(1 * time.Second)
+	if duration > 0 {
+		if err := cmd.Start(); err != nil {
+			fmt.Printf("Error starting %s: %v\n", command, err)
+			return
+		}
+	
+		// Countdown from the specified duration
+		for i := duration; i > 0; i-- {
+			fmt.Printf("Killing %s in %d seconds...\n", command, i)
+			time.Sleep(1 * time.Second)
+		}
+	
+		// Kill the command
+		if err := cmd.Process.Kill(); err != nil {
+			fmt.Printf("Error killing %s: %v\n", command, err)
+			return
+		}
+	
+		fmt.Printf("%s was killed\n", command)
+	} else {
+		fmt.Printf("Running and waiting %s\n", command)
+		if err := cmd.Run(); err != nil {
+			fmt.Printf("Error starting %s: %v\n", command, err)
+			return
+		}
+		fmt.Printf("%s was finished\n", command)
 	}
-
-	// Kill the command
-	if err := cmd.Process.Kill(); err != nil {
-		fmt.Printf("Error killing %s: %v\n", command, err)
-		return
-	}
-
-	fmt.Printf("%s was killed\n", command)
 }
